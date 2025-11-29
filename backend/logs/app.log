@@ -1,0 +1,880 @@
+2025-11-30 02:16:57,598 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:16:57,598 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:16:57,598 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:16:57,598 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:17:00,850 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2
+2025-11-30 02:17:00,850 - sai_interviewer - WARNING - [API_CALL] Response blocked by safety filters! Finish reason: 2
+2025-11-30 02:17:00,850 - sai_interviewer - WARNING - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:17:00,850 - sai_interviewer - WARNING - [API_CALL] Full prompt length: 5256
+2025-11-30 02:17:00,850 - sai_interviewer - WARNING - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:17:00,851 - sai_interviewer - WARNING - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
+2025-11-30 02:17:05,555 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:17:05,555 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:17:05,555 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:17:05,555 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:17:07,834 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:17:07,835 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:17:07,835 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2
+2025-11-30 02:17:07,835 - sai_interviewer - WARNING - [API_CALL] Response blocked by safety filters! Finish reason: 2
+2025-11-30 02:17:07,835 - sai_interviewer - WARNING - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:17:07,835 - sai_interviewer - WARNING - [API_CALL] Full prompt length: 5256
+2025-11-30 02:17:07,835 - sai_interviewer - WARNING - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:17:07,835 - sai_interviewer - WARNING - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
+2025-11-30 02:20:54,884 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:20:54,884 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:20:54,884 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:20:54,884 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:20:57,186 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:20:57,186 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] response.text not available: Invalid operation: The `response.text` quick accessor requires the response to contain a valid `Part`, but none were returned. The candidate's [finish_reason](https://ai.google.dev/api/generate-content#finishreason) is 2.
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2, name: MAX_TOKENS
+2025-11-30 02:20:57,187 - sai_interviewer - DEBUG - [API_CALL] Full response string (checking for MAX_TOKENS vs SAFETY): response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:20:57,187 - sai_interviewer - INFO - [API_CALL] Finish reason analysis: value=2, name=MAX_TOKENS, is_max_tokens=True, is_safety=True
+2025-11-30 02:20:57,187 - sai_interviewer - ERROR - [API_CALL] ❌ Response blocked by safety filters! No text available.
+2025-11-30 02:20:57,187 - sai_interviewer - ERROR - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:20:57,187 - sai_interviewer - ERROR - [API_CALL] Full prompt length: 5256
+2025-11-30 02:20:57,187 - sai_interviewer - ERROR - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:20:57,187 - sai_interviewer - ERROR - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
+2025-11-30 02:21:02,766 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:21:02,766 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:21:02,766 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:21:02,766 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] response.text not available: Invalid operation: The `response.text` quick accessor requires the response to contain a valid `Part`, but none were returned. The candidate's [finish_reason](https://ai.google.dev/api/generate-content#finishreason) is 2.
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2, name: MAX_TOKENS
+2025-11-30 02:21:05,018 - sai_interviewer - DEBUG - [API_CALL] Full response string (checking for MAX_TOKENS vs SAFETY): response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:21:05,018 - sai_interviewer - INFO - [API_CALL] Finish reason analysis: value=2, name=MAX_TOKENS, is_max_tokens=True, is_safety=True
+2025-11-30 02:21:05,018 - sai_interviewer - ERROR - [API_CALL] ❌ Response blocked by safety filters! No text available.
+2025-11-30 02:21:05,018 - sai_interviewer - ERROR - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:21:05,018 - sai_interviewer - ERROR - [API_CALL] Full prompt length: 5256
+2025-11-30 02:21:05,018 - sai_interviewer - ERROR - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:21:05,018 - sai_interviewer - ERROR - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
+2025-11-30 02:29:47,580 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:29:47,580 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:29:47,580 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:29:47,581 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:29:47,941 - sai_interviewer - WARNING - [API_CALL] Error with dict safety settings: 403 Your API key was reported as leaked. Please use another API key., trying without safety settings...
+2025-11-30 02:29:48,028 - sai_interviewer - ERROR - [API_CALL] Error generating response in CoordinatorAgent: 403 Your API key was reported as leaked. Please use another API key.
+2025-11-30 02:29:48,028 - sai_interviewer - ERROR - [API_CALL] Error type: <class 'google.api_core.exceptions.PermissionDenied'>
+2025-11-30 02:29:48,032 - sai_interviewer - ERROR - [API_CALL] Traceback:
+Traceback (most recent call last):
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/src/agents/base.py", line 131, in generate_response
+    response = self.model.generate_content(
+        full_prompt,
+    ...<3 lines>...
+        )
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+        request,
+        **request_options,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+    response = rpc(
+        request,
+    ...<2 lines>...
+        metadata=metadata,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+    return retry_target(
+        target,
+    ...<3 lines>...
+        on_error=on_error,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+    next_sleep = _retry_error_helper(
+        exc,
+    ...<6 lines>...
+        timeout,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+    raise final_exc from source_exc
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+    result = target()
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/grpc_helpers.py", line 77, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.PermissionDenied: 403 Your API key was reported as leaked. Please use another API key.
+
+2025-11-30 02:29:51,330 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:29:51,330 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:29:51,331 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:29:51,331 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:29:51,409 - sai_interviewer - WARNING - [API_CALL] Error with dict safety settings: 403 Your API key was reported as leaked. Please use another API key., trying without safety settings...
+2025-11-30 02:29:51,571 - sai_interviewer - ERROR - [API_CALL] Error generating response in CoordinatorAgent: 403 Your API key was reported as leaked. Please use another API key.
+2025-11-30 02:29:51,571 - sai_interviewer - ERROR - [API_CALL] Error type: <class 'google.api_core.exceptions.PermissionDenied'>
+2025-11-30 02:29:51,572 - sai_interviewer - ERROR - [API_CALL] Traceback:
+Traceback (most recent call last):
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/src/agents/base.py", line 131, in generate_response
+    response = self.model.generate_content(
+        full_prompt,
+    ...<3 lines>...
+        )
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+        request,
+        **request_options,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+    response = rpc(
+        request,
+    ...<2 lines>...
+        metadata=metadata,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+    return retry_target(
+        target,
+    ...<3 lines>...
+        on_error=on_error,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+    next_sleep = _retry_error_helper(
+        exc,
+    ...<6 lines>...
+        timeout,
+    )
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+    raise final_exc from source_exc
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+    result = target()
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+  File "/Users/anupdangi/Desktop/AnupAI/projects/SmartAIInterviewer/backend/venv/lib/python3.14/site-packages/google/api_core/grpc_helpers.py", line 77, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.PermissionDenied: 403 Your API key was reported as leaked. Please use another API key.
+
+2025-11-30 02:34:21,539 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:34:21,539 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:34:21,539 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:34:21,540 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:34:24,034 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:34:24,034 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] response.text not available: Invalid operation: The `response.text` quick accessor requires the response to contain a valid `Part`, but none were returned. The candidate's [finish_reason](https://ai.google.dev/api/generate-content#finishreason) is 2.
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2, name: MAX_TOKENS
+2025-11-30 02:34:24,035 - sai_interviewer - DEBUG - [API_CALL] Full response string (checking for MAX_TOKENS vs SAFETY): response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:24,035 - sai_interviewer - INFO - [API_CALL] Finish reason analysis: value=2, name=MAX_TOKENS, is_max_tokens=True, is_safety=True
+2025-11-30 02:34:24,035 - sai_interviewer - ERROR - [API_CALL] ❌ Response blocked by safety filters! No text available.
+2025-11-30 02:34:24,035 - sai_interviewer - ERROR - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:34:24,035 - sai_interviewer - ERROR - [API_CALL] Full prompt length: 5256
+2025-11-30 02:34:24,035 - sai_interviewer - ERROR - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:24,035 - sai_interviewer - ERROR - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
+2025-11-30 02:34:27,079 - sai_interviewer - DEBUG - [API_CALL] Generating response with model: gemini-2.5-flash
+2025-11-30 02:34:27,079 - sai_interviewer - DEBUG - [API_CALL] Prompt length: 5256 chars
+2025-11-30 02:34:27,079 - sai_interviewer - DEBUG - [API_CALL] Prompt preview (first 1000 chars):
+<system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:34:27,079 - sai_interviewer - WARNING - [API_CALL] Error with SafetySetting objects: module 'google.generativeai.types' has no attribute 'SafetySetting', trying dict format...
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Response received with dict safety settings
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Response object type: <class 'google.generativeai.types.generation_types.GenerateContentResponse'>
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Response string: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason: 2
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Candidate finish_reason type: <enum 'FinishReason'>
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Candidate has content: True
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Content parts: True
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] response.text not available: Invalid operation: The `response.text` quick accessor requires the response to contain a valid `Part`, but none were returned. The candidate's [finish_reason](https://ai.google.dev/api/generate-content#finishreason) is 2.
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Finish reason value: 2, name: MAX_TOKENS
+2025-11-30 02:34:29,321 - sai_interviewer - DEBUG - [API_CALL] Full response string (checking for MAX_TOKENS vs SAFETY): response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:29,321 - sai_interviewer - INFO - [API_CALL] Finish reason analysis: value=2, name=MAX_TOKENS, is_max_tokens=True, is_safety=True
+2025-11-30 02:34:29,322 - sai_interviewer - ERROR - [API_CALL] ❌ Response blocked by safety filters! No text available.
+2025-11-30 02:34:29,322 - sai_interviewer - ERROR - [API_CALL] Prompt that triggered safety (first 1000 chars): <system>
+You are a senior interviewer starting a technical interview.
+
+Current Stage: INTRODUCTION
+Candidate Name: ANUP DANGI
+
+Your role:
+1. Greet the candidate warmly using their name
+2. Show familiarity with their CV (reference a specific project or skill)
+3. Ask them to introduce themselves briefly (60-90 seconds)
+4. Set a friendly, professional tone
+5. Transition smoothly into the interview
+
+Guidelines:
+- Use their name: "ANUP DANGI"
+- Reference something specific from their CV
+- Keep it conversational, not robotic
+- Maximum 2-3 sentences for your question
+</system>
+
+<context>
+CANDIDATE SUMMARY:
+Anup Dangi is an AIML student pursuing a Bachelor's degree in AI and Machine Learning (expected 2026) with around 1 year of interning experience and a strong passion for developing AI-driven solutions. His technical skills encompass programming languages like Python, C, and Java, along with frameworks such as Flask, React, Node.js, and Django. He's proficient in database technologies (SQL &
+2025-11-30 02:34:29,322 - sai_interviewer - ERROR - [API_CALL] Full prompt length: 5256
+2025-11-30 02:34:29,322 - sai_interviewer - ERROR - [API_CALL] Full response object: response:
+GenerateContentResponse(
+    done=True,
+    iterator=None,
+    result=protos.GenerateContentResponse({
+      "candidates": [
+        {
+          "content": {
+            "role": "model"
+          },
+          "finish_reason": "MAX_TOKENS",
+          "index": 0
+        }
+      ],
+      "usage_metadata": {
+        "prompt_token_count": 1146,
+        "total_token_count": 1345
+      },
+      "model_version": "gemini-2.5-flash"
+    }),
+)
+2025-11-30 02:34:29,322 - sai_interviewer - ERROR - [API_CALL] Response candidates: [content {
+  role: "model"
+}
+finish_reason: MAX_TOKENS
+index: 0
+]
