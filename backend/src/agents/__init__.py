@@ -5,13 +5,11 @@ Using Google Generative AI (Gemini) with ADK-style orchestration
 
 from .base import BaseAgent
 from .coordinator import CoordinatorAgent
-from .planner import PlannerAgent
-from .memory_agent import MemoryAgent
+from .interview_memory import InterviewMemory
 
 __all__ = [
     "BaseAgent",
     "CoordinatorAgent",
-    "PlannerAgent",
-    "MemoryAgent",
+    "InterviewMemory",
 ]
 

@@ -10,3 +10,4 @@ cryptography
 pymupdf
 aiofiles
 google-generativeai
+google-adk

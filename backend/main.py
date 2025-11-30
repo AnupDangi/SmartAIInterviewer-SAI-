@@ -880,11 +880,13 @@ async def start_interview(
     # Generate opening question
     try:
         print(f"[DEBUG] Starting interview {interview_id}, session_run_id: {session_run_id}")
-        result = coordinator.generate_opening_question(
+        result = await coordinator.generate_opening_question(
             interview_id=interview_id,
             interview_title=interview.title,
             duration_minutes=interview.duration_minutes,
-            db=db
+            db=db,
+            session_run_id=str(session_run_id),  # Pass session_run_id for ADK Session
+            user_id=clerk_user_id  # Pass user_id for ADK Session
         )
         
         opening_question = result["question"]
@@ -1009,11 +1011,13 @@ async def send_message(
         print(f"[DEBUG] Found {len(recent_sessions_dict)} recent sessions for run {session_run_id}")
         
         # Generate AI response and feedback (ONLY ONE LLM CALL - FAST!)
-        result = coordinator.generate_follow_up_question(
+        result = await coordinator.generate_follow_up_question(
             interview_id=interview_id,
             interview_title=interview.title,
             user_message=request.user_message,
             db=db,
+            session_run_id=str(session_run_id),  # Pass session_run_id for ADK Session
+            user_id=clerk_user_id,  # Pass user_id for ADK Session
             recent_sessions=recent_sessions_dict
         )
         

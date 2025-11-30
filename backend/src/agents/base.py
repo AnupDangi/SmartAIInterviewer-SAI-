@@ -1,278 +1,421 @@
 """
-Base Agent Class - Foundation for all agents in the multi-agent system
+Base Agent Class - REAL Google ADK Implementation
+Uses google.adk.agents.LlmAgent and google.adk.runners.Runner
 """
 import os
-import json
-import google.generativeai as genai
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
-from src.utils.logger import logger, log_api_call
+from google.adk.agents import LlmAgent
+from google.adk.runners import Runner, InMemorySessionService
+from src.utils.logger import logger
+from src.agents.interview_memory import InterviewMemory
 
 load_dotenv()
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Shared session service singleton - ensures sessions persist across agent instances
+_shared_session_service = InMemorySessionService()
+
+
+# ADK Content and Part classes - simple objects with required attributes
+class Content:
+    """Simple Content object for ADK Runner - must have .role attribute."""
+    def __init__(self, role: str, parts: list):
+        self.role = role
+        self.parts = parts
+
+
+class Part:
+    """Simple Part object for ADK Content - must have .text attribute."""
+    def __init__(self, text: str):
+        self.text = text
 
 
 class BaseAgent:
     """
-    Base class for all agents in the multi-agent interview system.
-    Provides common functionality for LLM interaction and agent communication.
+    Base class for all agents using REAL Google ADK.
+    Properly creates and manages ADK sessions using Runner.start_session().
     """
     
     def __init__(self, model_name: str = "gemini-2.5-flash", temperature: float = 0.7):
         """
-        Initialize the agent with a Gemini model.
+        Initialize the agent with ADK LlmAgent.
         
         Args:
             model_name: Name of the Gemini model to use
             temperature: Temperature for response generation (0.0-1.0)
         """
-        self.model = genai.GenerativeModel(model_name)
         self.model_name = model_name
         self.temperature = temperature
-        self.conversation_history: list = []
+        # Use shared session service so sessions persist across agent instances
+        self._session_service = _shared_session_service
+        # Use "agents" to match ADK's detected app_name from LlmAgent location
+        self._app_name = "agents"
+        # Cache for runners (one per system_instruction)
+        self._runners: Dict[str, Runner] = {}
+        
+        logger.info(f"[ADK] Initialized {self.__class__.__name__} with model: {self.model_name}")
     
-    def generate_response(
+    def _create_runner(self, system_instruction: Optional[str] = None) -> Runner:
+        """
+        Create ADK Runner instance for the given system instruction.
+        Caches runners by system_instruction key.
+        
+        Args:
+            system_instruction: Optional system instruction for the agent
+            
+        Returns:
+            Runner instance
+        """
+        cache_key = f"{self.model_name}_{system_instruction or 'default'}"
+        
+        if cache_key not in self._runners:
+            # Create LlmAgent
+            agent_data = {
+                "model": self.model_name,
+                "name": self.__class__.__name__.lower().replace("agent", ""),
+            }
+            
+            if system_instruction:
+                agent_data["instruction"] = system_instruction
+            
+            llm_agent = LlmAgent(**agent_data)
+            
+            # Create Runner with shared session service
+            runner = Runner(
+                app_name=self._app_name,
+                agent=llm_agent,
+                session_service=self._session_service
+            )
+            
+            self._runners[cache_key] = runner
+            logger.debug(f"[ADK] Created Runner for {self.__class__.__name__} with model: {self.model_name}")
+        
+        return self._runners[cache_key]
+    
+    async def _ensure_session_exists(
+        self,
+        session_id: str,
+        user_id: str,
+        initial_state: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Ensure ADK session exists before using it with run_async.
+        Creates session using session_service.create_session() if it doesn't exist.
+        
+        Args:
+            session_id: Session ID (session_run_id)
+            user_id: User ID
+            initial_state: Optional initial state for new sessions
+            
+        Returns:
+            Session object if exists or created, None if error
+        """
+        try:
+            # Try to get existing session using session service
+            session = await self._session_service.get_session(
+                app_name=self._app_name,
+                user_id=user_id,
+                session_id=session_id
+            )
+            logger.debug(f"[ADK] Session {session_id} already exists in service {id(self._session_service)}")
+            # Debug: Check if session is actually in the internal storage if possible
+            if hasattr(self._session_service, '_sessions'):
+                 logger.debug(f"[ADK] Service sessions keys: {list(self._session_service._sessions.keys())}")
+            return session
+        except (ValueError, KeyError, AttributeError, Exception) as e:
+            # Session doesn't exist - create it using session_service.create_session()
+            logger.debug(f"[ADK] Session {session_id} not found, creating new session using session_service.create_session()")
+            try:
+                # Try different parameter combinations for create_session
+                try:
+                    # Try with all parameters first
+                    session = await self._session_service.create_session(
+                        app_name=self._app_name,
+                        user_id=user_id,
+                        session_id=session_id,
+                        state=initial_state or {}
+                    )
+                except (TypeError, AttributeError):
+                    # Try without state parameter
+                    try:
+                        session = await self._session_service.create_session(
+                            app_name=self._app_name,
+                            user_id=user_id,
+                            session_id=session_id
+                        )
+                        # Set state separately if session has state attribute
+                        if initial_state and hasattr(session, 'state'):
+                            session.state.update(initial_state)
+                    except (TypeError, AttributeError):
+                        # Try with minimal parameters (app_name and user_id only)
+                        session = await self._session_service.create_session(
+                            app_name=self._app_name,
+                            user_id=user_id
+                        )
+                        # Set state separately if session has state attribute
+                        if initial_state and hasattr(session, 'state'):
+                            session.state.update(initial_state)
+                
+                logger.info(f"[ADK] ✅ Successfully created session {session_id} for user {user_id}")
+                return session
+            except Exception as create_error:
+                logger.error(f"[ADK] Failed to create session using session_service.create_session(): {create_error}")
+                # Don't raise - let run_async handle session creation if needed
+                return None
+    
+    def switch_model(self, new_model_name: str):
+        """Switch to a different model dynamically"""
+        if new_model_name != self.model_name:
+            logger.info(f"[ADK] Switching model from {self.model_name} to {new_model_name}")
+            self.model_name = new_model_name
+            # Clear runner cache so new model is used
+            self._runners.clear()
+    
+    async def _run_with_adk(
+        self,
+        prompt: str,
+        session_id: str,
+        user_id: str,
+        system_instruction: Optional[str] = None,
+        initial_state: Optional[Dict[str, Any]] = None,
+        state_delta: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """
+        Run agent with ADK, ensuring session exists before calling run_async.
+        
+        Args:
+            prompt: The user prompt/question
+            session_id: Session ID (session_run_id)
+            user_id: User ID
+            system_instruction: Optional system instruction
+            initial_state: Optional initial state for session creation
+            state_delta: Optional state updates to apply
+            
+        Returns:
+            Generated response text
+        """
+        # Create runner
+        runner = self._create_runner(system_instruction=system_instruction)
+        
+        # Ensure session exists (create if needed) - use session service directly
+        await self._ensure_session_exists(
+            session_id=session_id,
+            user_id=user_id,
+            initial_state=initial_state
+        )
+        
+        # Debug Runner state
+        # Ensure session exists in the runner's service
+        # This handles cases where the runner might be using a different service instance or key
+        service = getattr(runner, 'session_service', None)
+        if service:
+            try:
+                await service.create_session(
+                    app_name=getattr(runner, 'app_name', 'agents'),
+                    user_id=user_id,
+                    session_id=session_id,
+                    state=initial_state or {}
+                )
+            except Exception:
+                # Session likely already exists, which is fine
+                pass
+        
+        # Create Content object for ADK
+        new_message = Content(role="user", parts=[Part(text=prompt)])
+        
+        # Run agent - session now exists
+        response_text = ""
+        try:
+            async for event in runner.run_async(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=new_message,
+                state_delta=state_delta
+            ):
+                # Collect text from response events
+                if hasattr(event, 'text') and event.text:
+                    response_text += event.text
+                elif hasattr(event, 'content') and event.content:
+                    if isinstance(event.content, str):
+                        response_text += event.content
+                    elif hasattr(event.content, 'text'):
+                        response_text += event.content.text
+                    elif hasattr(event.content, 'parts'):
+                        # Handle parts list
+                        for part in event.content.parts:
+                            if hasattr(part, 'text'):
+                                response_text += part.text
+                elif hasattr(event, 'message') and event.message:
+                    if hasattr(event.message, 'content'):
+                        if isinstance(event.message.content, str):
+                            response_text += event.message.content
+                        elif hasattr(event.message.content, 'text'):
+                            response_text += event.message.content.text
+                        elif hasattr(event.message.content, 'parts'):
+                            for part in event.message.content.parts:
+                                if hasattr(part, 'text'):
+                                    response_text += part.text
+        except Exception as e:
+            import sys
+            sys.stderr.write(f"[ADK-DEBUG] Error in run_async loop: {e}\n")
+            # Re-raise to be handled by caller
+            raise e
+        
+        return response_text.strip()
+    
+    async def generate_response(
         self,
         prompt: str,
         system_instruction: Optional[str] = None,
         context: Optional[str] = None,
         temperature: Optional[float] = None,
-        max_output_tokens: int = 500
+        max_output_tokens: int = 300,
+        memory: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        state_delta: Optional[Dict[str, Any]] = None
     ) -> str:
         """
-        Generate a response using structured 3-block prompt format.
-        This enforces clear structure and improves quality.
+        Generate a response using REAL Google ADK Runner.
+        Properly creates ADK sessions using runner.start_session() before calling run_async.
         
         Args:
             prompt: The main user prompt/question
             system_instruction: System-level instructions for the agent
             context: Additional context as a formatted string
-            temperature: Override default temperature
-            max_output_tokens: Maximum tokens in response
+            temperature: Override default temperature (not used, kept for compatibility)
+            max_output_tokens: Maximum tokens in response (not used, kept for compatibility)
+            memory: Optional DB memory dict (CV/JD summaries) - included in context
+            session_id: Session ID for ADK session management
+            user_id: User ID for ADK session management
+            state_delta: Optional state updates to apply
             
         Returns:
             Generated response text
         """
         try:
-            # Build structured prompt
-            parts = []
+            # Build full message with context
+            context_parts = []
             
-            if system_instruction:
-                parts.append(f"<system>\n{system_instruction}\n</system>")
+            if memory:
+                memory_str = "\n".join([f"{k}: {str(v)[:200]}" for k, v in memory.items() if v])
+                if memory_str:
+                    context_parts.append(f"DB CONTEXT:\n{memory_str}")
             
             if context:
-                parts.append(f"<context>\n{context}\n</context>")
+                context_parts.append(context)
             
-            parts.append(f"<user>\n{prompt}\n</user>")
+            full_context = "\n\n".join(context_parts) if context_parts else ""
+            user_message = f"{full_context}\n\n{prompt}" if full_context else prompt
             
-            full_prompt = "\n\n".join(parts)
+            logger.debug(f"[ADK] Generating response with model: {self.model_name}")
+            logger.debug(f"[ADK] System instruction: {bool(system_instruction)}")
+            logger.debug(f"[ADK] User message length: {len(user_message)} chars")
+            logger.debug(f"[ADK] Session ID: {session_id}")
             
-            # Generate response with optimized config
-            # Try with SafetySetting objects first
-            logger.debug(f"[API_CALL] Generating response with model: {self.model_name}")
-            logger.debug(f"[API_CALL] Prompt length: {len(full_prompt)} chars")
-            logger.debug(f"[API_CALL] Prompt preview (first 1000 chars):\n{full_prompt[:1000]}")
+            # Use ADK's proper async execution
+            user_id_for_adk = user_id or "default_user"
+            session_id_for_adk = session_id or "default_session"
             
-            try:
-                # Method 1: Try with SafetySetting objects
-                safety_settings_list = [
-                    genai.types.SafetySetting(
-                        category=genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT,
-                        threshold=genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    ),
-                    genai.types.SafetySetting(
-                        category=genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                        threshold=genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    ),
-                    genai.types.SafetySetting(
-                        category=genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                        threshold=genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    ),
-                    genai.types.SafetySetting(
-                        category=genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                        threshold=genai.types.HarmBlockThreshold.BLOCK_NONE,
-                    ),
-                ]
-                
-                response = self.model.generate_content(
-                    full_prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature if temperature is not None else self.temperature,
-                        max_output_tokens=max_output_tokens,
-                    ),
-                    safety_settings=safety_settings_list
-                )
-                
-                logger.debug(f"[API_CALL] Response received with SafetySetting objects")
-                
-            except Exception as e:
-                logger.warning(f"[API_CALL] Error with SafetySetting objects: {e}, trying dict format...")
-                # Fallback: Try with dict format
-                try:
-                    response = self.model.generate_content(
-                        full_prompt,
-                        generation_config={
-                            "temperature": temperature if temperature is not None else self.temperature,
-                            "max_output_tokens": max_output_tokens,
-                        },
-                        safety_settings={
-                            genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                            genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                            genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                            genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
-                        }
-                    )
-                    logger.debug(f"[API_CALL] Response received with dict safety settings")
-                except Exception as e2:
-                    logger.warning(f"[API_CALL] Error with dict safety settings: {e2}, trying without safety settings...")
-                    # Last resort: Try without explicit safety settings
-                    response = self.model.generate_content(
-                        full_prompt,
-                        generation_config=genai.types.GenerationConfig(
-                            temperature=temperature if temperature is not None else self.temperature,
-                            max_output_tokens=max_output_tokens,
-                        )
-                    )
-                    logger.debug(f"[API_CALL] Response received without explicit safety settings")
+            # Use state_delta as initial state if provided for new sessions
+            initial_state = state_delta if state_delta else {}
             
-            # Log full response details
-            logger.debug(f"[API_CALL] Response object type: {type(response)}")
-            logger.debug(f"[API_CALL] Response string: {str(response)[:500]}")
+            # Run with ADK - this will create session if needed
+            response_text = await self._run_with_adk(
+                prompt=user_message,
+                session_id=session_id_for_adk,
+                user_id=user_id_for_adk,
+                system_instruction=system_instruction,
+                initial_state=initial_state,
+                state_delta=state_delta
+            )
             
-            # Check if response has valid content
-            if not response.candidates or len(response.candidates) == 0:
-                logger.error(f"[API_CALL] No candidates in response. Full response: {response}")
-                logger.error(f"[API_CALL] Response string representation: {str(response)}")
-                print(f"[DEBUG] No candidates in response. Full response: {response}")
-                return "I apologize, but I couldn't generate a response. Please try again."
+            result = response_text if response_text else "I apologize, but I couldn't generate a response. Please try again."
             
-            candidate = response.candidates[0]
+            logger.info(f"[ADK] ✅ Successfully generated response ({len(result)} chars)")
+            return result
             
-            # Detailed logging - FIRST, try to extract any text that might exist
-            logger.debug(f"[API_CALL] Candidate finish_reason: {candidate.finish_reason}")
-            logger.debug(f"[API_CALL] Candidate finish_reason type: {type(candidate.finish_reason)}")
-            logger.debug(f"[API_CALL] Candidate has content: {candidate.content is not None}")
-            
-            # CRITICAL: Try to extract text FIRST, regardless of finish_reason
-            actual_text = None
-            if candidate.content:
-                logger.debug(f"[API_CALL] Content parts: {candidate.content.parts is not None}")
-                if candidate.content.parts:
-                    logger.debug(f"[API_CALL] Parts count: {len(candidate.content.parts)}")
-                    for i, part in enumerate(candidate.content.parts):
-                        logger.debug(f"[API_CALL] Part {i}: {type(part)}, has text: {hasattr(part, 'text')}")
-                        if hasattr(part, 'text') and part.text:
-                            logger.debug(f"[API_CALL] Part {i} text: {part.text[:200]}...")
-                            if actual_text is None:
-                                actual_text = part.text
-                            else:
-                                actual_text += " " + part.text
-                
-                # Also try to get text directly from content
-                if hasattr(candidate.content, 'text') and candidate.content.text:
-                    logger.debug(f"[API_CALL] Found text in content.text: {candidate.content.text[:200]}...")
-                    if actual_text is None:
-                        actual_text = candidate.content.text
-                    else:
-                        actual_text += " " + candidate.content.text
-            
-            # Try response.text as well
-            try:
-                response_text = response.text
-                if response_text:
-                    logger.debug(f"[API_CALL] Found text in response.text: {response_text[:200]}...")
-                    if actual_text is None:
-                        actual_text = response_text
-                    elif actual_text != response_text:
-                        logger.debug(f"[API_CALL] response.text differs from parts, using response.text")
-                        actual_text = response_text
-            except (ValueError, AttributeError) as e:
-                logger.debug(f"[API_CALL] response.text not available: {e}")
-            
-            # Log what we found
-            if actual_text:
-                logger.info(f"[API_CALL] ✅ FOUND ACTUAL TEXT! Length: {len(actual_text)}")
-                logger.info(f"[API_CALL] Actual text: {actual_text}")
-                print(f"[DEBUG] ✅ ACTUAL LLM RESPONSE: {actual_text}")
-            
-            # Check finish_reason - handle both enum and int
-            finish_reason = candidate.finish_reason
-            finish_reason_value = None
-            finish_reason_name = None
-            
-            # Handle enum
-            if hasattr(finish_reason, 'value'):
-                finish_reason_value = finish_reason.value
-            if hasattr(finish_reason, 'name'):
-                finish_reason_name = finish_reason.name
-            if finish_reason_value is None:
-                finish_reason_value = finish_reason
-            
-            # Also check the protobuf string representation
-            response_str = str(response)
-            logger.debug(f"[API_CALL] Finish reason value: {finish_reason_value}, name: {finish_reason_name}")
-            logger.debug(f"[API_CALL] Full response string (checking for MAX_TOKENS vs SAFETY): {response_str[:500]}")
-            
-            # Check if it's actually MAX_TOKENS (value 3) or SAFETY (value 2)
-            is_max_tokens = finish_reason_value == 3 or finish_reason_name == "MAX_TOKENS" or "MAX_TOKENS" in response_str
-            is_safety = finish_reason_value == 2 or finish_reason_name == "SAFETY" or (finish_reason_value == 2 and not is_max_tokens)
-            
-            logger.info(f"[API_CALL] Finish reason analysis: value={finish_reason_value}, name={finish_reason_name}, is_max_tokens={is_max_tokens}, is_safety={is_safety}")
-            print(f"[DEBUG] Finish reason: value={finish_reason_value}, name={finish_reason_name}, is_max_tokens={is_max_tokens}, is_safety={is_safety}")
-            
-            # If we have actual text, return it regardless of finish_reason (might be truncated but usable)
-            if actual_text:
-                if is_max_tokens:
-                    logger.warning(f"[API_CALL] Response truncated (MAX_TOKENS) but returning available text")
-                    return actual_text.strip()
-                elif is_safety:
-                    logger.warning(f"[API_CALL] Response marked SAFETY but has text, returning it")
-                    return actual_text.strip()
-                else:
-                    logger.info(f"[API_CALL] Normal response with text")
-                    return actual_text.strip()
-            
-            # No text found - handle based on finish_reason
-            if is_safety:
-                logger.error(f"[API_CALL] ❌ Response blocked by safety filters! No text available.")
-                logger.error(f"[API_CALL] Prompt that triggered safety (first 1000 chars): {full_prompt[:1000]}")
-                logger.error(f"[API_CALL] Full prompt length: {len(full_prompt)}")
-                logger.error(f"[API_CALL] Full response object: {response}")
-                logger.error(f"[API_CALL] Response candidates: {response.candidates}")
-                print(f"[DEBUG] ❌ Response blocked by safety filters. No text available. Prompt length: {len(full_prompt)}")
-                return "I apologize, but my response was filtered. Let me try a different approach."
-            
-            if is_max_tokens:
-                logger.error(f"[API_CALL] ❌ Response truncated (MAX_TOKENS) but no text found")
-                print(f"[DEBUG] ❌ Response truncated (MAX_TOKENS) but no text found")
-                return "I apologize, but the response was too long. Can you ask a shorter question?"
-            
-            # No text and unknown finish_reason
-            logger.error(f"[API_CALL] ❌ No text found and finish_reason={finish_reason_value}/{finish_reason_name}")
-            logger.error(f"[API_CALL] Full response: {response}")
-            print(f"[DEBUG] ❌ No text found. Finish reason: {finish_reason_value}/{finish_reason_name}")
-            return "I apologize, but I couldn't generate a response. Please try again."
-                
         except Exception as e:
-            logger.error(f"[API_CALL] Error generating response in {self.__class__.__name__}: {e}")
-            logger.error(f"[API_CALL] Error type: {type(e)}")
+            logger.error(f"[ADK] Error generating response in {self.__class__.__name__}: {e}")
             import traceback
-            logger.error(f"[API_CALL] Traceback:\n{traceback.format_exc()}")
-            print(f"Error generating response in {self.__class__.__name__}: {e}")
-            traceback.print_exc()
+            logger.error(f"[ADK] Traceback:\n{traceback.format_exc()}")
             return f"I apologize, but I encountered an error: {str(e)}"
     
+    async def get_session_memory(self, session_id: str, user_id: str) -> Optional[InterviewMemory]:
+        """
+        Get in-session memory from ADK session state.
+        
+        Args:
+            session_id: The session_run_id
+            user_id: User identifier
+            
+        Returns:
+            InterviewMemory object or None
+        """
+        try:
+            # Get session using session service directly
+            try:
+                session = await self._session_service.get_session(
+                    app_name=self._app_name,
+                    user_id=user_id,
+                    session_id=session_id
+                )
+                
+                # Extract state from session
+                if hasattr(session, 'state') and session.state:
+                    memory = InterviewMemory.from_dict(dict(session.state))
+                    return memory
+            except (ValueError, KeyError, AttributeError):
+                # Session doesn't exist yet - that's okay
+                pass
+            
+            return None
+        except Exception as e:
+            logger.debug(f"[ADK] Could not retrieve session memory: {e}")
+            return None
+    
+    def set_session_memory(
+        self,
+        session_id: str,
+        user_id: str,
+        memory: InterviewMemory
+    ):
+        """
+        Update ADK session state with InterviewMemory.
+        Note: State is primarily managed via state_delta in generate_response.
+        
+        Args:
+            session_id: The session_run_id
+            user_id: User identifier
+            memory: InterviewMemory object to store
+        """
+        try:
+            # ADK manages state through state_delta in run_async
+            # This method is kept for compatibility
+            logger.debug(f"[ADK] Session state managed by ADK Runner via state_delta")
+        except Exception as e:
+            logger.error(f"[ADK] Error setting session memory: {e}")
+    
+    def reset_session(self, session_id: str, user_id: str):
+        """Reset/delete ADK session (start new interview run)"""
+        try:
+            # TODO: Implement session deletion if needed
+            logger.info(f"[ADK] Session reset requested for {session_id}")
+        except Exception as e:
+            logger.warning(f"[ADK] Error resetting session: {e}")
+    
     def add_to_history(self, role: str, content: str):
-        """Add a message to conversation history."""
-        self.conversation_history.append({"role": role, "content": content})
+        """Add a message to conversation history (ADK manages this automatically)."""
+        # ADK Runner maintains conversation history in session
+        pass
     
     def clear_history(self):
-        """Clear conversation history."""
-        self.conversation_history = []
+        """Clear conversation history (ADK manages this)."""
+        # ADK Runner manages history
+        pass
     
     def get_history(self) -> list:
-        """Get conversation history."""
-        return self.conversation_history.copy()
-
+        """Get conversation history (ADK manages this)."""
+        # ADK Runner maintains history in session
+        return []

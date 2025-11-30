@@ -58,7 +58,6 @@ def init_db():
             conn.execute(text("DROP TABLE IF EXISTS messages CASCADE"))
             conn.execute(text("DROP TABLE IF EXISTS sessions CASCADE"))
             conn.commit()
-        print("Cleaned up old RAG tables (chunks, files) and unused tables")
     except Exception as e:
         print(f"Note: Could not drop old tables (they may not exist): {e}")
     
