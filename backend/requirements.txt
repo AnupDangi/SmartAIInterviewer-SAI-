@@ -11,3 +11,4 @@ pymupdf
 aiofiles
 google-generativeai
 google-adk
+aiohttp
