@@ -20,10 +20,10 @@ const Dashboard = () => {
 
   // Store Clerk token and ensure user exists in DB (only once)
   const [userInitialized, setUserInitialized] = useState(false);
-  
+
   useEffect(() => {
     let isMounted = true;
-    
+
     const initializeUser = async () => {
       if (getToken && !userInitialized) {
         try {
@@ -41,9 +41,9 @@ const Dashboard = () => {
         }
       }
     };
-    
+
     initializeUser();
-    
+
     return () => {
       isMounted = false;
     };
@@ -132,7 +132,7 @@ const Dashboard = () => {
           {/* Show Form or Start Button */}
           {showForm ? (
             <div className="mb-8">
-              <StartInterviewForm 
+              <StartInterviewForm
                 onSuccess={editingInterview ? handleEditSuccess : handleInterviewCreated}
                 onCancel={editingInterview ? handleEditCancel : () => setShowForm(false)}
                 interview={editingInterview}

@@ -1187,3 +1187,115 @@ async def get_interview_details(
             }
         }
     }
+
+
+@app.post("/api/interviews/{interview_id}/end")
+async def end_interview(
+    http_request: Request,
+    interview_id: str,
+    request: SendMessageRequest,  # Reusing to get session_run_id
+    user_info: Optional[dict] = Depends(verify_clerk_token),
+    db: Session = Depends(get_db)
+):
+    """
+    End an interview session and clean up ADK resources
+    """
+    # Handle OPTIONS preflight
+    if http_request.method == "OPTIONS" or user_info is None:
+        return Response(status_code=200)
+    
+    clerk_user_id = user_info["user_id"]
+    
+    # Verify interview belongs to user
+    user = db.query(User).filter(User.user_id == clerk_user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    interview = db.query(Interview).filter(
+        Interview.id == interview_id,
+        Interview.user_id == user.user_id
+    ).first()
+    
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    try:
+        # Get session_run_id
+        import uuid
+        session_run_id = None
+        if request.session_run_id:
+            try:
+                session_run_id = uuid.UUID(request.session_run_id)
+            except ValueError:
+                session_run_id = None
+        
+        if session_run_id:
+            print(f"[DEBUG] Ending interview session: {session_run_id}")
+            
+            # Generate session summary
+            from src.agents.coordinator import CoordinatorAgent
+            coordinator = CoordinatorAgent()
+            summary = await coordinator.generate_session_summary(str(session_run_id), clerk_user_id)
+            
+            # Create a marker session to indicate this run is ended
+            end_session = InterviewSession(
+                interview_id=interview.id,
+                session_run_id=session_run_id,
+                ai_message=summary,  # Store summary in AI message
+                user_message="[SESSION_ENDED]",
+                feedback=None
+            )
+            db.add(end_session)
+            db.commit()
+            
+            return {
+                "status": "ended", 
+                "interview_id": interview_id, 
+                "session_run_id": str(session_run_id),
+                "summary": summary
+            }
+        
+        return {"status": "ended", "interview_id": interview_id, "session_run_id": None}
+        
+    except Exception as e:
+        print(f"[ERROR] Error ending interview: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to end interview: {str(e)}")
+
+
+@app.get("/api/interviews/{interview_id}/latest-session")
+async def get_latest_session(
+    request: Request,
+    interview_id: str,
+    user_info: Optional[dict] = Depends(verify_clerk_token),
+    db: Session = Depends(get_db)
+):
+    """
+    Get the most recent session for an interview
+    Used to check if the last run was ended or to resume the correct run
+    """
+    # Handle OPTIONS preflight
+    if request.method == "OPTIONS" or user_info is None:
+        return Response(status_code=200)
+    
+    clerk_user_id = user_info["user_id"]
+    
+    user = db.query(User).filter(User.user_id == clerk_user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    interview = db.query(Interview).filter(
+        Interview.id == interview_id,
+        Interview.user_id == user.user_id
+    ).first()
+    
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    latest_session = db.query(InterviewSession).filter(
+        InterviewSession.interview_id == interview.id
+    ).order_by(InterviewSession.created_at.desc()).first()
+    
+    if not latest_session:
+        return None
+        
+    return latest_session.to_dict()

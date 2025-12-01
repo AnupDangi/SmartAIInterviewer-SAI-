@@ -3,6 +3,7 @@ Optimized Coordinator Agent - Production-ready with state machine and smart cont
 Implements all 9 optimizations for faster, smarter, more adaptive interviews
 """
 from typing import Dict, Any, Optional, List
+from datetime import datetime
 from .base import BaseAgent
 from .interview_state import InterviewState, answer_depth
 from .interview_memory import InterviewMemory
@@ -276,6 +277,7 @@ End with a single QUESTION line."""
         prompt = f"""Generate a warm, personalized opening greeting and question.
 
 Greet {session_memory.candidate_name} by name.
+Start with exactly: "I am SAI, your AI interviewer."
 Reference one concrete item from their CV/JD if available to show familiarity.
 Ask for a 60–90 second self-introduction focused on impact and responsibilities.
 Keep it friendly and professional (2-3 sentences max).
@@ -381,6 +383,18 @@ QUESTION: [your greeting and question]"""
         state.question_count = session_memory.question_count
         state.last_answer_depth = session_memory.last_answer_depth
         
+        # Check time limit
+        elapsed_minutes = (datetime.utcnow() - session_memory.start_time).total_seconds() / 60.0
+        if elapsed_minutes >= duration_minutes:
+            logger.info(f"[TIME_LIMIT] Session exceeded {duration_minutes} mins. Ending session.")
+            return {
+                "question": "Thank you for your time. We have reached the end of our session. I'll now generate a summary of our discussion.",
+                "feedback": "Time limit reached.",
+                "state": state.to_dict(),
+                "memory": session_memory.to_dict(),
+                "end_session": True
+            }
+
         # Build smart context (only relevant excerpts) - FIX 2
         context = self._build_smart_context(state, db_memory, is_first=False)
         
@@ -399,6 +413,7 @@ INTERVIEW CONTEXT:
 - Question #{session_memory.question_count}
 - Candidate: {session_memory.candidate_name}
 - Last Answer Depth: {session_memory.last_answer_depth:.1f}/1.0
+- Time Remaining: {max(0, duration_minutes - elapsed_minutes):.1f} mins
 
 {context}
 
@@ -417,6 +432,7 @@ TASK:
 3. If answer was brief (depth < 0.5), probe deeper: "Can you tell me more about...?"
 4. If answer was good (depth > 0.7), acknowledge and go deeper.
 5. Reference what they just said in your next question.
+6. DO NOT REPEAT previous questions or answers.
 
 Generate:
 1. Your next question (2-3 sentences, builds on their answer)
@@ -443,48 +459,83 @@ FEEDBACK: [brief feedback referencing their answer]"""
         # Combine context and conversation summary
         combined_context = f"{context}\n\n{conversation_summary}" if context and conversation_summary else (context or conversation_summary or "")
         
-        # Generate response using ADK with state_delta for session memory
-        response = await self.generate_response(
-            prompt=prompt,
-            system_instruction=system_instruction,
-            context=combined_context,
-            temperature=0.6,
-            max_output_tokens=300,
-            memory=db_memory_dict,  # DB memory only (CV/JD)
-            session_id=session_run_id,  # Pass session_id to use ADK Session
-            user_id=user_id,
-            state_delta=session_memory.to_dict()  # Pass updated state to ADK
-        )
-        
-        # After LLM response, update memory if needed (e.g., extract topics)
-        # Memory is already updated before the call (question_count, stage, depth)
-        
-        # Parse response
-        question = response
-        feedback = None
-        
-        if "QUESTION:" in response and "FEEDBACK:" in response:
-            parts = response.split("FEEDBACK:")
-            if len(parts) == 2:
-                question = parts[0].replace("QUESTION:", "").strip()
-                feedback = parts[1].strip()
-        elif "FEEDBACK:" in response:
-            parts = response.split("FEEDBACK:")
-            question = parts[0].strip()
-            feedback = parts[1].strip() if len(parts) > 1 else None
-        else:
-            # If no feedback section, use entire response as question
+        try:
+            # Check for coding intent
+            coding_keywords = ["write code", "function", "class", "implement", "solution", "python", "c++", "java", "code for"]
+            is_coding_task = any(kw in user_message.lower() for kw in coding_keywords) or "technical" in session_memory.stage
+            
+            if is_coding_task and ("code" in user_message.lower() or "function" in user_message.lower()):
+                # Delegate to CodingAgent for code generation/verification
+                from .coding import CodingAgent
+                coding_agent = CodingAgent()
+                
+                # Use CodingAgent to generate response
+                # It will use tools if needed
+                response = await coding_agent.generate_response(
+                    prompt=f"""The candidate said: "{user_message}"
+                    
+    Context: {context}
+
+    If they provided code, verify it using the execute_code tool.
+    If they asked for code, write it and verify it.
+    If they are discussing a technical concept that requires code, provide a code example.
+
+    Format your response as:
+    QUESTION: [your response/question]
+    FEEDBACK: [your feedback on their code/approach]""",
+                    session_id=session_run_id,
+                    user_id=user_id,
+                    state_delta=session_memory.to_dict()
+                )
+            else:
+                # Generate response using ADK with state_delta for session memory
+                response = await self.generate_response(
+                    prompt=prompt,
+                    system_instruction=system_instruction,
+                    context=combined_context,
+                    temperature=0.6,
+                    max_output_tokens=300,
+                    memory=db_memory_dict,  # DB memory only (CV/JD)
+                    session_id=session_run_id,  # Pass session_id to use ADK Session
+                    user_id=user_id,
+                    state_delta=session_memory.to_dict()  # Pass updated state to ADK
+                )
+            
+            # Parse response
             question = response
-        
-        # Get updated memory from Session.state after processing
-        updated_memory = await self.get_session_memory(session_run_id, user_id)
-        
-        return {
-            "question": question,
-            "feedback": feedback,
-            "state": state.to_dict(),
-            "memory": updated_memory.to_dict() if updated_memory else None  # Return memory for client
-        }
+            feedback = None
+            
+            if "QUESTION:" in response and "FEEDBACK:" in response:
+                parts = response.split("FEEDBACK:")
+                if len(parts) == 2:
+                    question = parts[0].replace("QUESTION:", "").strip()
+                    feedback = parts[1].strip()
+            elif "FEEDBACK:" in response:
+                parts = response.split("FEEDBACK:")
+                question = parts[0].strip()
+                feedback = parts[1].strip() if len(parts) > 1 else None
+            else:
+                # If no feedback section, use entire response as question
+                question = response
+            
+            # Get updated memory from Session.state after processing
+            updated_memory = await self.get_session_memory(session_run_id, user_id)
+            
+            return {
+                "question": question,
+                "feedback": feedback,
+                "state": state.to_dict(),
+                "memory": updated_memory.to_dict() if updated_memory else None  # Return memory for client
+            }
+
+        except Exception as e:
+            logger.error(f"Error generating response: {e}")
+            return {
+                "question": "I encountered a technical issue processing your request. Could you please rephrase that or shall we move to the next topic?",
+                "feedback": "System error occurred.",
+                "state": state.to_dict(),
+                "memory": session_memory.to_dict()
+            }
     
     def should_escalate_to_pro(self, task_type: str, complexity: str) -> bool:
         """
@@ -498,3 +549,36 @@ FEEDBACK: [brief feedback referencing their answer]"""
             return True
         
         return False
+
+    async def generate_session_summary(self, session_run_id: str, user_id: str) -> str:
+        """Generate a comprehensive summary of the session."""
+        try:
+            session_memory = await self.get_session_memory(session_run_id, user_id)
+            if not session_memory:
+                return "No session data available."
+                
+            prompt = f"""Generate a comprehensive performance summary for the candidate based on the session.
+            
+            Candidate: {session_memory.candidate_name}
+            Topics Covered: {', '.join(session_memory.topics_covered)}
+            
+            Format:
+            ## Performance Summary
+            [Strengths and weaknesses]
+            
+            ## Improvement Plan
+            [Actionable advice]
+            
+            ## Session Log
+            [Key skills demonstrated]
+            """
+            
+            summary = await self.generate_response(
+                prompt=prompt,
+                temperature=0.7,
+                max_output_tokens=500
+            )
+            return summary
+        except Exception as e:
+            logger.error(f"Error generating summary: {e}")
+            return "Could not generate summary due to an error."

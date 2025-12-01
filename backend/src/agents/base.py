@@ -37,16 +37,18 @@ class BaseAgent:
     Properly creates and manages ADK sessions using Runner.start_session().
     """
     
-    def __init__(self, model_name: str = "gemini-2.5-flash", temperature: float = 0.7):
+    def __init__(self, model_name: str = "gemini-2.5-flash", temperature: float = 0.7, tools: Optional[List[Any]] = None):
         """
         Initialize the agent with ADK LlmAgent.
         
         Args:
             model_name: Name of the Gemini model to use
             temperature: Temperature for response generation (0.0-1.0)
+            tools: Optional list of tools to register with the agent
         """
         self.model_name = model_name
         self.temperature = temperature
+        self.tools = tools or []
         # Use shared session service so sessions persist across agent instances
         self._session_service = _shared_session_service
         # Use "agents" to match ADK's detected app_name from LlmAgent location
@@ -78,6 +80,9 @@ class BaseAgent:
             
             if system_instruction:
                 agent_data["instruction"] = system_instruction
+                
+            if self.tools:
+                agent_data["tools"] = self.tools
             
             llm_agent = LlmAgent(**agent_data)
             
@@ -244,17 +249,17 @@ class BaseAgent:
                     elif hasattr(event.content, 'parts'):
                         # Handle parts list
                         for part in event.content.parts:
-                            if hasattr(part, 'text'):
+                            if hasattr(part, 'text') and part.text:
                                 response_text += part.text
                 elif hasattr(event, 'message') and event.message:
                     if hasattr(event.message, 'content'):
                         if isinstance(event.message.content, str):
                             response_text += event.message.content
-                        elif hasattr(event.message.content, 'text'):
+                        elif hasattr(event.message.content, 'text') and event.message.content.text:
                             response_text += event.message.content.text
                         elif hasattr(event.message.content, 'parts'):
                             for part in event.message.content.parts:
-                                if hasattr(part, 'text'):
+                                if hasattr(part, 'text') and part.text:
                                     response_text += part.text
         except Exception as e:
             import sys
@@ -277,7 +282,7 @@ class BaseAgent:
         state_delta: Optional[Dict[str, Any]] = None
     ) -> str:
         """
-        Generate a response using REAL Google ADK Runner.
+        Generate a response using Google ADK Runner.
         Properly creates ADK sessions using runner.start_session() before calling run_async.
         
         Args:
@@ -321,26 +326,55 @@ class BaseAgent:
             # Use state_delta as initial state if provided for new sessions
             initial_state = state_delta if state_delta else {}
             
-            # Run with ADK - this will create session if needed
-            response_text = await self._run_with_adk(
-                prompt=user_message,
-                session_id=session_id_for_adk,
-                user_id=user_id_for_adk,
-                system_instruction=system_instruction,
-                initial_state=initial_state,
-                state_delta=state_delta
-            )
+            # Retry loop for 503 errors
+            max_retries = 3
+            import asyncio
             
-            result = response_text if response_text else "I apologize, but I couldn't generate a response. Please try again."
-            
-            logger.info(f"[ADK] ✅ Successfully generated response ({len(result)} chars)")
-            return result
+            for attempt in range(max_retries):
+                try:
+                    # Run with ADK - this will create session if needed
+                    response_text = await self._run_with_adk(
+                        prompt=user_message,
+                        session_id=session_id_for_adk,
+                        user_id=user_id_for_adk,
+                        system_instruction=system_instruction,
+                        initial_state=initial_state,
+                        state_delta=state_delta
+                    )
+                    
+                    result = response_text if response_text else "I apologize, but I couldn't generate a response. Please try again."
+                    
+                    logger.info(f"[ADK] ✅ Successfully generated response ({len(result)} chars)")
+                    return result
+                    
+                except Exception as e:
+                    error_str = str(e)
+                    is_overloaded = "503" in error_str or "overloaded" in error_str.lower()
+                    
+                    if is_overloaded and attempt < max_retries - 1:
+                        wait_time = 2 ** attempt  # 1s, 2s, 4s
+                        logger.warning(f"[ADK] Model overloaded (503). Retrying in {wait_time}s (Attempt {attempt+1}/{max_retries})...")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    
+                    # If not overloaded or last retry, raise to outer handler
+                    raise e
             
         except Exception as e:
+            # Check for specific Google API errors
+            error_str = str(e)
+            if "503" in error_str or "overloaded" in error_str.lower():
+                logger.warning(f"[ADK] Model overloaded (503) after retries.")
+                return "I'm currently experiencing very high traffic. Please give me a moment and try asking again."
+            
+            if "429" in error_str or "quota" in error_str.lower():
+                logger.warning(f"[ADK] Quota exceeded (429).")
+                return "I've reached my usage limit for the moment. Please try again in a minute."
+                
             logger.error(f"[ADK] Error generating response in {self.__class__.__name__}: {e}")
             import traceback
             logger.error(f"[ADK] Traceback:\n{traceback.format_exc()}")
-            return f"I apologize, but I encountered an error: {str(e)}"
+            return "I apologize, but I encountered a temporary issue. Please try again."
     
     async def get_session_memory(self, session_id: str, user_id: str) -> Optional[InterviewMemory]:
         """
@@ -405,17 +439,3 @@ class BaseAgent:
         except Exception as e:
             logger.warning(f"[ADK] Error resetting session: {e}")
     
-    def add_to_history(self, role: str, content: str):
-        """Add a message to conversation history (ADK manages this automatically)."""
-        # ADK Runner maintains conversation history in session
-        pass
-    
-    def clear_history(self):
-        """Clear conversation history (ADK manages this)."""
-        # ADK Runner manages history
-        pass
-    
-    def get_history(self) -> list:
-        """Get conversation history (ADK manages this)."""
-        # ADK Runner maintains history in session
-        return []

@@ -20,6 +20,7 @@ export interface InterviewSession {
   user_message: string;
   feedback: string | null;
   created_at: string;
+  session_run_id?: string;
 }
 
 export interface StartInterviewResponse {
@@ -60,15 +61,15 @@ export interface CreateInterviewRequest {
  */
 export async function getAuthHeaders(token?: string, isFormData = false): Promise<HeadersInit> {
   const authToken = token || localStorage.getItem("clerk_token") || "";
-  
+
   const headers: HeadersInit = {
     Authorization: `Bearer ${authToken}`,
   };
-  
+
   if (!isFormData) {
     headers["Content-Type"] = "application/json";
   }
-  
+
   return headers;
 }
 
@@ -84,11 +85,11 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/api/users/me`, {
       headers,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch user");
     }
-    
+
     return response.json();
   },
 
@@ -106,12 +107,12 @@ export const api = {
       headers,
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Failed to create interview" }));
       throw new Error(error.detail || "Failed to create interview");
     }
-    
+
     return response.json();
   },
 
@@ -129,11 +130,11 @@ export const api = {
       headers,
       body: JSON.stringify({ text }),
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to process job description");
     }
-    
+
     return response.json();
   },
 
@@ -147,18 +148,18 @@ export const api = {
   ): Promise<{ message: string; interview_id: string; filename: string }> {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const headers = await getAuthHeaders(token, true);
     const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/upload-cv`, {
       method: "POST",
       headers,
       body: formData,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to upload CV");
     }
-    
+
     return response.json();
   },
 
@@ -172,18 +173,18 @@ export const api = {
   ): Promise<{ message: string; interview_id: string; filename: string }> {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const headers = await getAuthHeaders(token, true);
     const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/upload-jd`, {
       method: "POST",
       headers,
       body: formData,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to upload Job Description");
     }
-    
+
     return response.json();
   },
 
@@ -201,12 +202,12 @@ export const api = {
       headers,
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Failed to update interview" }));
       throw new Error(error.detail || "Failed to update interview");
     }
-    
+
     return response.json();
   },
 
@@ -219,12 +220,12 @@ export const api = {
       method: "DELETE",
       headers,
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Failed to delete interview" }));
       throw new Error(error.detail || "Failed to delete interview");
     }
-    
+
     return response.json();
   },
 
@@ -236,11 +237,11 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/api/interviews`, {
       headers,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch interviews");
     }
-    
+
     return response.json();
   },
 
@@ -252,11 +253,11 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}`, {
       headers,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch interview");
     }
-    
+
     return response.json();
   },
 
@@ -269,17 +270,17 @@ export const api = {
     sessionRunId?: string  // Optional: filter by session run
   ): Promise<InterviewSession[]> {
     const headers = await getAuthHeaders(token);
-    const url = sessionRunId 
+    const url = sessionRunId
       ? `${API_BASE_URL}/api/interviews/${interviewId}/sessions?session_run_id=${sessionRunId}`
       : `${API_BASE_URL}/api/interviews/${interviewId}/sessions`;
     const response = await fetch(url, {
       headers,
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to fetch interview sessions");
     }
-    
+
     return response.json();
   },
 
@@ -297,11 +298,11 @@ export const api = {
       headers,
       body: JSON.stringify(data),
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to create interview session");
     }
-    
+
     return response.json();
   },
 
@@ -317,12 +318,12 @@ export const api = {
       method: "POST",
       headers,
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Failed to start interview" }));
       throw new Error(error.detail || "Failed to start interview");
     }
-    
+
     return response.json();
   },
 
@@ -339,17 +340,61 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/messages`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         user_message: userMessage,
         session_run_id: sessionRunId || null
       }),
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Failed to send message" }));
       throw new Error(error.detail || "Failed to send message");
     }
-    
+
+    return response.json();
+  },
+  /**
+   * End an interview session
+   */
+  async endInterview(
+    interviewId: string,
+    token?: string,
+    sessionRunId?: string
+  ): Promise<{ status: string; interview_id: string; session_run_id: string | null; summary?: string }> {
+    const headers = await getAuthHeaders(token);
+    const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/end`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        user_message: "END_SESSION", // Placeholder
+        session_run_id: sessionRunId || null
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to end interview" }));
+      throw new Error(error.detail || "Failed to end interview");
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get the latest session for an interview
+   */
+  async getLatestSession(
+    interviewId: string,
+    token?: string
+  ): Promise<InterviewSession | null> {
+    const headers = await getAuthHeaders(token);
+    const response = await fetch(`${API_BASE_URL}/api/interviews/${interviewId}/latest-session`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch latest session");
+    }
+
     return response.json();
   },
 };

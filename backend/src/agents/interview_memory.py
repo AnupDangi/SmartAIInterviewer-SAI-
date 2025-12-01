@@ -21,6 +21,8 @@ class InterviewMemory(BaseModel):
     candidate_name: str = Field(default="there", description="Candidate's name")
     cv_summary: Optional[str] = Field(default=None, description="Summary of the candidate's CV")
     job_description: Optional[str] = Field(default=None, description="The job description")
+    start_time: datetime = Field(default_factory=datetime.utcnow, description="Session start time")
+    duration_minutes: int = Field(default=30, description="Total interview duration in minutes")
     
     class Config:
         """Pydantic config for ADK compatibility."""
@@ -41,13 +43,25 @@ class InterviewMemory(BaseModel):
         """Load from dictionary (Pydantic method)."""
         return cls(**data)
     
-    def update_stage(self, duration_minutes: int):
-        """Update stage based on question count and duration."""
-        total_questions = duration_minutes // 2
+    def update_stage(self, duration_minutes: int = 30):
+        """Update stage based on elapsed time and question count."""
+        # Calculate elapsed time
+        elapsed_minutes = (datetime.utcnow() - self.start_time).total_seconds() / 60.0
+        
+        # Time-based thresholds
+        if elapsed_minutes >= duration_minutes * 0.9:
+            self.stage = "closing"
+            return
+        elif elapsed_minutes >= duration_minutes * 0.7:
+            self.stage = "behavioral"
+            return
+            
+        # Question-based thresholds (fallback/pacing)
+        total_questions = duration_minutes // 3  # Assume ~3 mins per question
         
         if self.question_count == 0:
             self.stage = "intro"
-        elif self.question_count <= total_questions * 0.3:
+        elif self.question_count <= 1: # Intro is usually just 1 question
             self.stage = "intro"
         elif self.question_count <= total_questions * 0.7:
             self.stage = "technical"
