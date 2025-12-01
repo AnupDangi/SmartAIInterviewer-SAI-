@@ -39,9 +39,11 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://localhost:8080",  # Added for Vite dev server on port 8080
+        "http://localhost:8080",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:8080",
+        "https://smart-ai-interviewer-sai.vercel.app",
+        "https://smart-ai-interviewer-sai.vercel.app/",
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
@@ -139,7 +141,7 @@ async def handle_cors_and_options(request: Request, call_next):
         #     "http://127.0.0.1:5173",
         #     "http://127.0.0.1:8080",
         # ]
-        allowed_origins = ["https://smart-ai-interviewer-sai.vercel.app/", "https://smart-ai-interviewer-sai.vercel.app"]
+        allowed_origins = ["https://smart-ai-interviewer-sai.vercel.app", "https://smart-ai-interviewer-sai.vercel.app/"]
         if origin in allowed_origins:
             response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
@@ -169,6 +171,8 @@ async def handle_cors_and_options(request: Request, call_next):
         "http://localhost:8080",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:8080",
+        "https://smart-ai-interviewer-sai.vercel.app",
+        "https://smart-ai-interviewer-sai.vercel.app/",
     ]
     if origin in allowed_origins:
         response.headers["Access-Control-Allow-Origin"] = origin
