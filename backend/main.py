@@ -10,6 +10,7 @@ from datetime import datetime
 import os
 import jwt
 import aiofiles
+import uvicorn
 import fitz  # PyMuPDF
 from pathlib import Path
 from dotenv import load_dotenv
@@ -131,13 +132,14 @@ async def handle_cors_and_options(request: Request, call_next):
     if request.method == "OPTIONS":
         response = Response()
         origin = request.headers.get("origin")
-        allowed_origins = [
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "http://localhost:8080",
-            "http://127.0.0.1:5173",
-            "http://127.0.0.1:8080",
-        ]
+        # allowed_origins = [
+        #     "http://localhost:5173",
+        #     "http://localhost:3000",
+        #     "http://localhost:8080",
+        #     "http://127.0.0.1:5173",
+        #     "http://127.0.0.1:8080",
+        # ]
+        allowed_origins = ["https://smart-ai-interviewer-sai.vercel.app/", "https://smart-ai-interviewer-sai.vercel.app"]
         if origin in allowed_origins:
             response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
@@ -1299,3 +1301,7 @@ async def get_latest_session(
         return None
         
     return latest_session.to_dict()
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
