@@ -23,62 +23,60 @@ SAI solves this by creating an **adaptive interview experience**. It analyzes yo
 ### System Architecture
 High-level overview of the application components and data flow.
 
-```mermaid
 graph TD
-    User[User] -->|Interact| UI[Frontend (React + Vite)]
-    UI -->|REST API| API[Backend (FastAPI)]
+    User[User] -->|Interact| UI[Frontend_React_Vite]
+    UI -->|REST_API| API[Backend_FastAPI]
     
-    subgraph "External Services"
-        Auth[Clerk Auth]
-        LLM[Google Gemini API]
-        Exec[Piston Code Execution]
+    subgraph External_Services
+        Auth[Clerk_Auth]
+        LLM[Gemini_API]
+        Exec[Piston_Code_Execution]
     end
     
-    subgraph "Data Persistence"
-        DB[(Neon Postgres)]
+    subgraph Data_Persistence
+        DB[Neon_Postgres_DB]
     end
     
-    API -->|Verify Token| Auth
-    API -->|Store/Fetch| DB
-    API -->|Generate| LLM
-    API -->|Run Code| Exec
-```
+    API -->|Verify_Token| Auth
+    API -->|Store_Fetch| DB
+    API -->|Call_LLM| LLM
+    API -->|Execute_Code| Exec
+
 
 ### Agent Architecture
 Detailed view of the multi-agent system powered by Google ADK.
 
-```mermaid
 flowchart TB
-    subgraph "Orchestration (Coordinator)"
-        Coord[Coordinator Agent]
-        State[Interview State Machine]
-        Mem[In-Session Memory]
+    subgraph Orchestration_Coordinator
+        Coord[Coordinator_Agent]
+        State[Interview_State_Machine]
+        Mem[InSessionMemory]
         
-        Coord -->|Updates| State
-        Coord -->|Reads/Writes| Mem
+        Coord -->|Update| State
+        Coord -->|Read_Write| Mem
     end
     
-    subgraph "Specialized Agents"
-        Coord --"Delegates Coding Tasks"--> Coder[Coding Agent]
+    subgraph Specialized_Agents
+        Coord -->|Delegates_Coding| Coder[Coding_Agent]
     end
     
-    subgraph "Google ADK & Tools"
-        Runner[ADK Runner]
-        Tool[Code Execution Tool]
+    subgraph ADK_and_Tools
+        Runner[ADK_Runner]
+        Tool[Code_Execution_Tool]
         
         Coder -->|Uses| Tool
-        Coord -->|Runs via| Runner
-        Coder -->|Runs via| Runner
+        Coord -->|Runs_Via| Runner
+        Coder -->|Runs_Via| Runner
     end
     
-    subgraph "Models"
-        Flash[Gemini 2.5 Flash\n(Conversation)]
-        Pro[Gemini 2.5 Pro\n(Reasoning/Coding)]
+    subgraph Models
+        Flash[Gemini_2_5_Flash]
+        Pro[Gemini_2_5_Pro]
         
         Coord -.-> Flash
         Coder -.-> Pro
     end
-```
+
 
 ### Components
 *   **Frontend**: React + Vite + TailwindCSS. Provides a Zoom-like interface with chat, video feed (avatars), and a split-screen code editor.
