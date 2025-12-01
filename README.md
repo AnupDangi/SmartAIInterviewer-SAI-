@@ -24,55 +24,50 @@ SAI solves this by creating an **adaptive interview experience**. It analyzes yo
 High-level overview of the application components and data flow.
 
 graph TD
-    User[User] -->|Interact| UI[Frontend_React_Vite]
-    UI -->|REST_API| API[Backend_FastAPI]
+    graph TD
+    User --> UI
+    UI --> API
     
-    subgraph External_Services
-        Auth[Clerk_Auth]
-        LLM[Gemini_API]
-        Exec[Piston_Code_Execution]
+    subgraph ExternalServices
+        Auth
+        Gemini
+        Piston
     end
     
-    subgraph Data_Persistence
-        DB[Neon_Postgres_DB]
+    subgraph Database
+        NeonDB
     end
     
-    API -->|Verify_Token| Auth
-    API -->|Store_Fetch| DB
-    API -->|Call_LLM| LLM
-    API -->|Execute_Code| Exec
+    API --> Auth
+    API --> NeonDB
+    API --> Gemini
+    API --> Piston
+
 
 
 ### Agent Architecture
 Detailed view of the multi-agent system powered by Google ADK.
 
 flowchart TB
-    subgraph Orchestration_Coordinator
-        Coord[Coordinator_Agent]
-        State[Interview_State_Machine]
-        Mem[InSessionMemory]
-        
-        Coord -->|Update| State
-        Coord -->|Read_Write| Mem
+    subgraph Coordinator
+        Coord
+        State
+        Memory
+        Coord --> State
+        Coord --> Memory
     end
-    
-    subgraph Specialized_Agents
-        Coord -->|Delegates_Coding| Coder[Coding_Agent]
+
+    subgraph CodingAgent
+        Coord --> Coder
+        Coder --> Tool
     end
-    
-    subgraph ADK_and_Tools
-        Runner[ADK_Runner]
-        Tool[Code_Execution_Tool]
-        
-        Coder -->|Uses| Tool
-        Coord -->|Runs_Via| Runner
-        Coder -->|Runs_Via| Runner
+
+    subgraph ADK
+        Coder --> Runner
+        Coord --> Runner
     end
-    
+
     subgraph Models
-        Flash[Gemini_2_5_Flash]
-        Pro[Gemini_2_5_Pro]
-        
         Coord -.-> Flash
         Coder -.-> Pro
     end
